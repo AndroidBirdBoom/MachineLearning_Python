@@ -29,13 +29,16 @@ def linearRegression(alpha=0.01, num_iters=400):
     X = featureNormaliza(X)
     X = np.hstack((np.ones((X.shape[0], 1)), X))  # 加一行，这行的目的就是作为常数项
     # 梯度下降
-    thera = np.zeros((num_iters, X.shape[1]))
+    thera = np.ones((1, X.shape[1]))
     thera = gradientDescent(X, Y, thera, alpha, num_iters)
 
 
 # 梯度下降算法
 def gradientDescent(X, y, theta, alpha, num_iters):
-    pass
+    m = X.shape[0]
+    hx = np.dot(np.matrix(X), np.matrix(theta).T)
+    for i in range(num_iters):
+        theta = theta - alpha * (1 / m) * (hx-y)*X[i]
 
 
 # 计算代价函数
