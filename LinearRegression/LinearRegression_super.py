@@ -24,26 +24,38 @@ def testLinearRegression():
 def linearRegression(alpha=0.01, num_iters=400):
     data = loadtxtAndcsv_data('data.txt')
     X = data[:, 0:2]
-    Y = data[:, -1]
+    Y = data[:, -1].reshape(X.shape[0], 1)
     # 先均一化
     X = featureNormaliza(X)
     X = np.hstack((np.ones((X.shape[0], 1)), X))  # 加一行，这行的目的就是作为常数项
     # 梯度下降
-    thera = np.ones((1, X.shape[1]))
-    thera = gradientDescent(X, Y, thera, alpha, num_iters)
+    thera = np.zeros((X.shape[1], 1))
+    gradientDescent(X, Y, thera, alpha, num_iters)
 
 
 # 梯度下降算法
 def gradientDescent(X, y, theta, alpha, num_iters):
     m = X.shape[0]
-    hx = np.dot(np.matrix(X), np.matrix(theta).T)
+    cost_h = np.zeros((num_iters, 1))
+    theta_file = open('theta.txt', 'w')
     for i in range(num_iters):
-        theta = theta - alpha * (1 / m) * (hx-y)*X[i]
+        hx = np.dot(X, theta)          # 注意hx使用的是更新后的theta!!!!
+        theta = theta - ((alpha / m) * np.dot(X.T, hx - y))
+        theta_file.write(str(theta)+'\n')
+        cost_h[i] = computerCost(X, y, theta)
+
+    plt.plot(np.array(np.arange(1, num_iters + 1)), cost_h)
+    plt.xlabel('times')
+    plt.ylabel('cost')
+    plt.show()
 
 
 # 计算代价函数
 def computerCost(X, y, theta):
-    pass
+    m = X.shape[0]
+    hx = np.dot(X, theta)
+    cost = np.sum((hx - y) * (hx - y), 0) / (2 * m)
+    return cost
 
 
 # 归一化feature( x = (x - mu)/theta)
