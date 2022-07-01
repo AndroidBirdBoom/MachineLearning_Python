@@ -26,11 +26,24 @@ def linearRegression(alpha=0.01, num_iters=400):
     X = data[:, 0:2]
     Y = data[:, -1].reshape(X.shape[0], 1)
     # 先均一化
-    X = featureNormaliza(X)
+    X, mean, std = featureNormaliza(X)
     X = np.hstack((np.ones((X.shape[0], 1)), X))  # 加一行，这行的目的就是作为常数项
     # 梯度下降
     thera = np.zeros((X.shape[1], 1))
-    gradientDescent(X, Y, thera, alpha, num_iters)
+    thera = gradientDescent(X, Y, thera, alpha, num_iters)
+    print("result = " + str(predict(mean, std, thera)))
+
+
+# 测试学习效果（预测）
+def predict(mu, sigma, theta):
+    result = 0
+    # 注意归一化
+    predict = np.array([1650, 3])
+    norm_predict = (predict - mu) / sigma
+    final_predict = np.hstack((np.ones((1)), norm_predict))
+
+    result = np.dot(final_predict, theta)  # 预测结果
+    return result
 
 
 # 梯度下降算法
@@ -39,15 +52,16 @@ def gradientDescent(X, y, theta, alpha, num_iters):
     cost_h = np.zeros((num_iters, 1))
     theta_file = open('theta.txt', 'w')
     for i in range(num_iters):
-        hx = np.dot(X, theta)          # 注意hx使用的是更新后的theta!!!!
+        hx = np.dot(X, theta)  # 注意hx使用的是更新后的theta!!!!
         theta = theta - ((alpha / m) * np.dot(X.T, hx - y))
-        theta_file.write(str(theta)+'\n')
+        theta_file.write(str(theta) + '\n')
         cost_h[i] = computerCost(X, y, theta)
 
     plt.plot(np.array(np.arange(1, num_iters + 1)), cost_h)
     plt.xlabel('times')
     plt.ylabel('cost')
     plt.show()
+    return theta
 
 
 # 计算代价函数
@@ -61,9 +75,9 @@ def computerCost(X, y, theta):
 # 归一化feature( x = (x - mu)/theta)
 def featureNormaliza(X):
     mean = np.mean(X, 0)
-    theta = np.std(X, 0)
+    std = np.std(X, 0)
     for i in range(X.shape[1]):
-        X[:, i] = (X[:, i] - mean[i]) / theta[i]
+        X[:, i] = (X[:, i] - mean[i]) / std[i]
 
     # plt.scatter(X[:, 0], X[:, 1])
     # plt.title("featureNormaliza")
@@ -71,7 +85,7 @@ def featureNormaliza(X):
     # plt.ylabel('y')
     # plt.show()
 
-    return X
+    return X, mean, std
 
 
 def loadtxtAndcsv_data(file_name):
