@@ -58,6 +58,7 @@ def gradientDescent(X, y, theta, alpha, num_iters):
         cost_h[i] = computerCost(X, y, theta)
 
     plt.plot(np.array(np.arange(1, num_iters + 1)), cost_h)
+    plt.title('LinearRegression')
     plt.xlabel('times')
     plt.ylabel('cost')
     plt.show()
